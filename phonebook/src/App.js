@@ -7,20 +7,66 @@ const filteredNames = (query, persons) => {
     return persons
   }
   return persons.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+} 
+
+const Filter = ({handleQueryChange}) => {
+  return(
+    <>
+      <label > filter shown with:{''}
+        <input onChange={handleQueryChange} />
+      </label>
+    </>
+  )
 }
 
+const PersonForm = ({addPerson, newName, newNumber, handleNameChange, handleNumberChange}) => {
+return(
+  <>
+   <form onSubmit={addPerson}>
+      <div>
+        name: {' '}
+        <input 
+          type='text'
+          value={newName}
+          onChange={handleNameChange} required
+        />
+      </div>
+      <div>
+        number:{' '}
+        <input 
+        type='text'
+          value={newNumber}
+          onChange={handleNumberChange} required
+        />
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+   </form> 
+  </>
+)
+}
+
+const Person = (props) => {
+return(
+  <>
+    {props.filteredItems.map((person, i)=> 
+    <div key={i}>{person.name} {person.number} </div>
+    )}
+  </>
+)
+}
 
 const App = () => {
   
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
+    { name: 'Arto Hellas', number: '040-123456' }
+  
   ]) 
   const [newName, setNewName] = useState('') 
   const [newNumber, setNewNumber] = useState('') 
   const [query, setQuery] = useState('') 
+
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -41,6 +87,13 @@ const App = () => {
     setNewNumber('')
   }
 
+const filteredItems = filteredNames(query, persons)
+
+
+  const handleQueryChange = (e) => {
+    setQuery(e.target.value)
+  }
+
   const handleNameChange = (e) => {
     setNewName(e.target.value)
   }
@@ -50,43 +103,22 @@ const App = () => {
   }
 
  
- const filteredItems = filteredNames(query, persons)
-
 
   return (
     <div>
-      {/* <Demo2 /> */}
-
       <h2>Phonebook</h2>
-      <label > filter shown with:{''}
-        <input onChange={e => setQuery(e.target.value)} />
-      </label>
-      <h2>add a new</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: {' '}
-          <input 
-           type='text'
-            value={newName}
-            onChange={handleNameChange} required
-          />
-        </div>
-        <div>
-          number:{' '}
-          <input 
-          type='number'
-            value={newNumber}
-            onChange={handleNumberChange} required
-          />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>  
-      <h2>Numbers</h2>
-      {filteredItems.map((person)=> 
-        <div key={person}>{person.name} {person.number} </div>
-        )}
+      <Filter handleQueryChange={handleQueryChange}/>
+      <h3>add a new</h3>
+      <PersonForm 
+      addPerson={addPerson}
+      newName={newName}
+      newNumber={newNumber} 
+      handleNameChange={handleNameChange}
+      handleNumberChange={handleNumberChange}
+      /> 
+      <h3>Numbers</h3>
+      <Person filteredItems={filteredItems} />
+     
     </div>
   )
 }
