@@ -1,6 +1,8 @@
 import React from 'react';
-import { useState } from 'react'
-// import Demo2 from './Demo2';
+import { useState, useEffect} from 'react'
+import axios from 'axios'
+
+
 
 const filteredNames = (query, persons) => {
   if(!query){
@@ -59,13 +61,21 @@ return(
 
 const App = () => {
   
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' }
-  
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('') 
   const [newNumber, setNewNumber] = useState('') 
   const [query, setQuery] = useState('') 
+
+  useEffect(() => {
+    console.log('Effects')
+    axios
+    .get('http://localhost:3001/persons')
+    .then(response => {
+      console.log('Promise fulfiled')
+      setPersons(response.data)
+    })
+  }, [])
+  console.log('render', persons.length, 'persons')
 
 
   const addPerson = (event) => {
