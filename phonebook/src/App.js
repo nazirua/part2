@@ -101,7 +101,7 @@ const filteredItems = filteredNames(query, persons)
 
 
   const handleQueryChange = (e) => {
-    setQuery(e.target.value)
+   setQuery(e.target.value)
   }
 
   const handleNameChange = (e) => {
