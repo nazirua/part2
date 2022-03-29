@@ -69,7 +69,7 @@ const App = () => {
   useEffect(() => {
     console.log('Effects')
     axios
-    .get('http://localhost:3001/persons')
+    .get('http://localhost:3002/persons')
     .then(response => {
       console.log('Promise fulfiled')
       setPersons(response.data)
