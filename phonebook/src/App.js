@@ -1,6 +1,7 @@
 import React from 'react';
-import { useState, useEffect} from 'react'
-import axios from 'axios'
+import { useState, useEffect} from 'react';
+import Person from './components/Person';
+import noteService from './services/persons';
 
 
 
@@ -49,15 +50,7 @@ return(
 )
 }
 
-const Person = (props) => {
-return(
-  <>
-    {props.filteredItems.map((person, i)=> 
-    <div key={i}>{person.name} {person.number} </div>
-    )}
-  </>
-)
-}
+
 
 const App = () => {
   
@@ -67,35 +60,70 @@ const App = () => {
   const [query, setQuery] = useState('') 
 
   useEffect(() => {
-    console.log('Effects')
-    axios
-    .get('http://localhost:3002/persons')
+    noteService
+    .getAll()
     .then(response => {
-      console.log('Promise fulfiled')
       setPersons(response.data)
     })
   }, [])
-  console.log('render', persons.length, 'persons')
+
 
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.find((p) => p.name === newName && p.number === newNumber)) {
-      window.alert(`${newName} is already added to the phonebook`);
-      return false;
-    }else if(persons.find((p) => p.number === newNumber)){
-      window.alert(`${newNumber} is already registered`);
-      return false;
+    // if (persons.find((p) => p.name === newName && p.number === newNumber)) {
+    //   window.alert(`${newName} is already added to the phonebook`);
+    //   return false;
+    // }else if(persons.find((p) => p.number === newNumber)){
+    //   window.alert(`${newNumber} is already registered`);
+    //   return false;
+    // }
 
-    }
     const personObject = {
       name: newName, number: newNumber
     }
   
-    setPersons(persons.concat(personObject));
-    setNewName('')
-    setNewNumber('')
+    noteService
+    .create(personObject)
+    .then(response => {
+      setPersons(persons.concat(response.data))
+      setNewName('')
+      setNewNumber('')
+    })
   }
+
+  const handleDeleteOf = (id) => {
+      const person = persons.filter(p => p.id !== id)
+      const changedNote = { ...persons}
+
+    if(window.confirm(`Delete  ?`)){
+      console.log(person)
+      noteService
+        .delete(id, changedNote)
+        .then(response => {
+          setPersons(persons.map(person => person.id !== id ? person: response.data))
+        })
+    }
+   
+}
+
+const updateNumber = id => {
+  if (persons.find((p) => p.name === newName && p.number === newNumber)) {
+    window.alert(`${newName} is already added to the phonebook, replace the old number with new one`);
+    return false;
+  }else if(persons.find((p) => p.number !== newNumber)){
+    const person = persons.find(p => p.id === id)
+  const changedNote = { ...person, number: newNumber }
+
+  noteService
+    .update(id, changedNote)
+    .then(response => {
+      setPersons(persons.map(p => p.id !== id ? p : response.data))
+    })
+    return false;
+  }
+  
+}
 
 const filteredItems = filteredNames(query, persons)
 
@@ -120,6 +148,7 @@ const filteredItems = filteredNames(query, persons)
       <Filter handleQueryChange={handleQueryChange}/>
       <h3>add a new</h3>
       <PersonForm 
+      updateNumber={updateNumber}
       addPerson={addPerson}
       newName={newName}
       newNumber={newNumber} 
@@ -127,7 +156,18 @@ const filteredItems = filteredNames(query, persons)
       handleNumberChange={handleNumberChange}
       /> 
       <h3>Numbers</h3>
-      <Person filteredItems={filteredItems} />
+      <div>
+        {filteredItems.map(person =>
+          <Person 
+          key={person.id}
+          person={person} 
+          handleDelete = {()=>handleDeleteOf(person.id)}
+        
+          />
+        )}
+
+      </div>
+      
      
     </div>
   )
